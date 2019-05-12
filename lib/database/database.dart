@@ -36,7 +36,11 @@ class ScheduleDatabase {
   }
 
   deleteTable(int table) async {
-    await database.execute('drop table if exists $TABLE_NAME$table');
+    try {
+      await database.execute('DELETE FROM $TABLE_NAME$table');
+    } catch (e) {
+      print(e);
+    }
   }
 
   insertData(int table, String kl, String std, String fach, String raum, String vlehrer, String vfach, String vraum, String info) async {

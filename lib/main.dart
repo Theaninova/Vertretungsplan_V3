@@ -39,29 +39,155 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return new FutureBuilder<Widget>(
       future: getAllSites(() {
-        setState(() {
-
-        });
+        setState(() {});
       }), // a Future<Widget> or null
       builder: (BuildContext context, AsyncSnapshot<Widget> snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.none:
             return new Text('Press button to start');
           case ConnectionState.waiting:
-            return new Scaffold(
-              appBar: AppBar(),
-              body: Container(
-                alignment: Alignment.center,
-                child: CircularProgressIndicator(),
+            return new DefaultTabController(
+              length: 2,
+              child: Scaffold(
+                appBar: AppBar(
+                  bottom: TabBar(
+                    tabs: [
+                      Tab(child: Placeholder(130.0, 16.0)),
+                      Tab(child: Placeholder(160.0, 16.0)),
+                    ],
+                  ),
+                  title: Placeholder(90.0, 30.0),
+                ),
+                body: ListView(children: [
+                  PlaceholderCard(6, 0),
+                  PlaceholderCard(10, 6),
+                  PlaceholderCard(4, 10),
+                ]),
               ),
             );
           default:
-            if (snapshot.hasError)
-              return new Text('Error: ${snapshot.error}');
-            else
+          if (snapshot.hasError) {
+              refresh().then((val) {
+                setState(() {
+                  // in case the database got deleted accidentally
+                });
+              });
+              return new Row(children: [
+                Text('Something went wrong.\nPlease wait a second...'),
+                CircularProgressIndicator(),
+              ]);
+            } else
               return snapshot.data;
         }
       },
     );
+  }
+}
+
+class PlaceholderCard extends StatelessWidget {
+  final int rows;
+  final int start;
+  final widths = [
+    200.0,
+    190.0,
+    130.0,
+    140.0,
+    190.0,
+    90.0,
+    180.0,
+    200.0,
+    120.0,
+    150.0,
+    210.0,
+    180.0
+  ];
+
+  PlaceholderCard(this.rows, this.start);
+
+  @override
+  Widget build(BuildContext context) {
+    List<Widget> placeholders = new List<Widget>();
+
+    for (int i = start; i < rows + start; i++)
+      placeholders.add(
+        Container(
+            margin: EdgeInsets.all(8.0),
+            child: Placeholder(widths[i % widths.length], 16.0)),
+      );
+
+    return Card(
+      child: Container(
+        alignment: Alignment.center,
+        margin: EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: placeholders,
+        ),
+      ),
+    );
+  }
+}
+
+class Placeholder extends StatelessWidget {
+  final double width;
+  final double height;
+
+  Placeholder(this.width, this.height);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: Container(
+        decoration: BoxDecoration(
+          color: Color.fromRGBO(0, 0, 0, 0.05),
+          borderRadius: BorderRadius.circular(30.0),
+        ),
+        height: this.height,
+        width: this.width,
+      ),
+      alignment: Alignment.centerLeft,
+    );
+  }
+}
+
+class RefreshChip extends StatefulWidget {
+  final VoidCallback refreshCallback;
+
+  RefreshChip(this.refreshCallback);
+
+  @override
+  State<StatefulWidget> createState() => _RefreshChipState(refreshCallback);
+}
+
+class _RefreshChipState extends State<RefreshChip> {
+  VoidCallback refreshCallback;
+  bool show = false;
+
+  _RefreshChipState(this.refreshCallback) {
+    backgroundRefresh();
+  }
+
+  backgroundRefresh() async {
+    if (await refresh()) {
+      setState(() {
+        show = true;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return show
+        ? ActionChip(
+            label: Text('Neuen Plan anzeigen'),
+            backgroundColor: Colors.white,
+            onPressed: () {
+              refreshCallback();
+              setState(() {
+                show = false;
+              });
+            })
+        : Container();
   }
 }

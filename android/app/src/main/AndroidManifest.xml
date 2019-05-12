@@ -14,7 +14,7 @@
          FlutterApplication and put your custom class here. -->
     <application
         android:name="io.flutter.app.FlutterApplication"
-        android:label="vertretungsplan_v3"
+        android:label="Vertretungsplan"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"

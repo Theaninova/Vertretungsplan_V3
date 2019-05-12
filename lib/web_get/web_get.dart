@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:vertretungsplan_v3/main.dart';
 import 'package:vertretungsplan_v3/web_get/roro_parse.dart';
 import 'package:vertretungsplan_v3/database/database.dart';
 import 'package:http/http.dart' as http;
@@ -27,7 +28,12 @@ Future<Widget> getAllSites(VoidCallback setState) async {
   final dates = List<Widget>();
 
   for (final url in urls) {
-    sites.add(await Schedule.getAll(database, url.hashCode));
+    sites.add(RefreshIndicator(
+        child: await Schedule.getAll(database, url.hashCode),
+        onRefresh: () async {
+          await refresh();
+          setState();
+        }));
     dates.add(Tab(text: await Schedule.getDate(url.hashCode)));
   }
 
@@ -42,17 +48,13 @@ Future<Widget> getAllSites(VoidCallback setState) async {
               'Vertretungsplan vom ${await Schedule.getGlobalUpdateDate()}'),
         ),
         body: TabBarView(children: sites),
-        floatingActionButton: ActionChip(
-            label: Text('Neuen Plan anzeigen'),
-            backgroundColor: Color.fromRGBO(68, 179, 162, 1.0),
-            onPressed: () {
-              setState();
-            }),
+        floatingActionButton: RefreshChip(setState),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       ));
 }
 
 Future<bool> refresh() async {
+  print('Refreshing...');
   final prefs = await SharedPreferences.getInstance();
 
   if (!(await probeCredentials(prefs.getString('login'))))
@@ -84,5 +86,7 @@ Future<bool> refresh() async {
 
   await prefs.setStringList('urls', urls);
 
+  print(
+      'Done refreshing${out ? ', plan was updated.' : ', already up to date.'}');
   return out;
 }
