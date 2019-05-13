@@ -40,7 +40,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return new FutureBuilder<Widget>(
       future: getAllSites(() {
         setState(() {});
-      }), // a Future<Widget> or null
+      }, context), // a Future<Widget> or null
       builder: (BuildContext context, AsyncSnapshot<Widget> snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.none:

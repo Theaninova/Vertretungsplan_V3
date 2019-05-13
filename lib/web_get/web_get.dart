@@ -18,7 +18,7 @@ Future<bool> probeCredentials(String credentials) async {
       .contains('abgebrochen');
 }
 
-Future<Widget> getAllSites(VoidCallback setState) async {
+Future<Widget> getAllSites(VoidCallback setState, BuildContext context) async {
   final prefs = await SharedPreferences.getInstance();
   final urls = prefs.getStringList('urls');
   final database = new ScheduleDatabase();
@@ -29,7 +29,7 @@ Future<Widget> getAllSites(VoidCallback setState) async {
 
   for (final url in urls) {
     sites.add(RefreshIndicator(
-        child: await Schedule.getAll(database, url.hashCode),
+        child: await Schedule.getAll(database, url.hashCode, context),
         onRefresh: () async {
           await refresh();
           setState();

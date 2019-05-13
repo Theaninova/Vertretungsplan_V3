@@ -71,13 +71,16 @@ class Schedule {
     return out;
   }
 
-  static Future<Widget> getClassInfoForSql(
-      ScheduleDatabase db, int index, String klasse) async {
+  static Future<Widget> getClassInfoForSql(ScheduleDatabase db, int index,
+      String klasse, BuildContext context) async {
     // final res = await db.database.rawQuery(sql);
     final res = await db.database.query('${ScheduleDatabase.TABLE_NAME}$index',
         where: '"${ScheduleDatabase.COL_1}" = "$klasse"');
 
     List<Row> classInfo = new List<Row>();
+    List<TableRow> table = new List();
+    table.add(customTableRow(
+        ['Std.', 'Fach', 'Raum', 'VLehrer', 'VFach', 'VRaum', 'Info'], true));
 
     bool forInfo = true;
     String currentLesson = 'x';
@@ -94,6 +97,9 @@ class Schedule {
       final String VFACH = elm.values.elementAt(6);
       final String VRAUM = elm.values.elementAt(7);
       final String INFO = elm.values.elementAt(8);
+
+      table.add(customTableRow(
+          [STUNDE, FACH, RAUM, VLEHRER, VFACH, VRAUM, INFO], false));
 
       /*if (STUNDE.contains(currentLesson)) output = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
       else if (currentLesson.contains('10')) output = '$currentLesson.&nbsp;';
@@ -149,24 +155,49 @@ class Schedule {
       ));
     }
 
-    return Container(
-      alignment: Alignment.center,
-      margin: EdgeInsets.all(16.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            KLASSE,
-            textScaleFactor: 1.5,
-          ),
-          Column(
+    return InkWell(
+        onTap: () {
+          showModalBottomSheet(
+              context: context,
+              builder: (context) {
+                return ListView(
+                  padding: EdgeInsets.all(16.0),
+                  children: [
+                    Container(
+                      child: Text(
+                        'Klasse $klasse',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                        textScaleFactor: 2.0,
+                      ),
+                      margin: EdgeInsets.all(8.0),
+                    ),
+                    Table(
+                      children: table,
+                      border: TableBorder.all(),
+                    ),
+                  ],
+                );
+              });
+        },
+        child: Container(
+          alignment: Alignment.center,
+          margin: EdgeInsets.all(16.0),
+          child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
-            children: classInfo,
-          )
-        ],
-      ),
-    );
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                KLASSE,
+                textScaleFactor: 1.5,
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: classInfo,
+              )
+            ],
+          ),
+        ));
   }
 
   static Future<List<String>> extractUrls(String raw) async {
@@ -197,7 +228,8 @@ class Schedule {
         .get('GlobalUpdateDate');
   }
 
-  static Future<Widget> getAll(ScheduleDatabase db, int index) async {
+  static Future<Widget> getAll(
+      ScheduleDatabase db, int index, BuildContext context) async {
     List<Widget> list = new List<Widget>();
 
     final res = await db.database.rawQuery(
@@ -205,7 +237,17 @@ class Schedule {
 
     for (final elm in res) {
       list.add(Card(
-        child: await getClassInfoForSql(db, index, elm.values.elementAt(0)),
+        child: InkWell(
+          onTap: () {
+            showModalBottomSheet(
+                context: context,
+                builder: (context) {
+                  return Text('Hello World');
+                });
+          },
+          child: await getClassInfoForSql(
+              db, index, elm.values.elementAt(0), context),
+        ),
         margin: EdgeInsets.all(8.0),
       ));
     }
@@ -221,4 +263,21 @@ class Schedule {
   static String decideSimple(String primary, String fallback) {
     return primary == '' ? fallback : primary;
   }
+}
+
+TableRow customTableRow(List<String> children, bool bold) {
+  final entries = List<Widget>();
+  for (final entry in children) {
+    entries.add(
+      Container(
+        child: Text(
+          entry,
+          style: TextStyle(fontWeight: bold ? FontWeight.bold : null),
+        ),
+        margin: EdgeInsets.all(8.0),
+      ),
+    );
+  }
+
+  return TableRow(children: entries);
 }
