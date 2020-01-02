@@ -34,8 +34,7 @@ class Schedule {
               tds[3].text.trim(),
               tds[4].text.trim(),
               tds[5].text.trim(),
-              tds[6].text.trim(),
-              tds[7].text.trim());
+              tds[6].text.trim());
         }
       }
     }
@@ -93,13 +92,12 @@ class Schedule {
       final String STUNDE = elm.values.elementAt(2);
       final String FACH = elm.values.elementAt(3);
       final String RAUM = elm.values.elementAt(4);
-      final String VLEHRER = elm.values.elementAt(5);
-      final String VFACH = elm.values.elementAt(6);
-      final String VRAUM = elm.values.elementAt(7);
-      final String INFO = elm.values.elementAt(8);
+      final String VFACH = elm.values.elementAt(5);
+      final String VRAUM = elm.values.elementAt(6);
+      final String INFO = elm.values.elementAt(7);
 
       table.add(customTableRow(
-          [STUNDE, FACH, RAUM, VLEHRER, VFACH, VRAUM, INFO], false));
+          [STUNDE, FACH, RAUM, VFACH, VRAUM, INFO], false));
 
       /*if (STUNDE.contains(currentLesson)) output = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
       else if (currentLesson.contains('10')) output = '$currentLesson.&nbsp;';
@@ -107,14 +105,14 @@ class Schedule {
 
       String output = decide(VFACH, FACH, '[Fach]');
 
-      if (VLEHRER.contains('*Frei')) {
+      if (INFO.toLowerCase().contains('frei')) {
         output += ' entfällt';
         forInfo = false;
-      } else if (VLEHRER.contains('Raumänderung')) {
+      } else if (INFO.toLowerCase().contains('raumänderung')) {
         output += ': Raumänderung in Raum $VRAUM';
         forInfo = false;
-      } else if (VLEHRER.contains('*Stillarbeit')) {
-        if (VLEHRER.contains('\u00A0'))
+      } else if (INFO.toLowerCase().contains('stillarbeit')) {
+        if (VRAUM.contains('\u00A0'))
           output += ': Stillarbeit';
         else
           output += ': Stillarbeit in Raum $VRAUM';
@@ -122,17 +120,17 @@ class Schedule {
 
       if (forInfo)
         output +=
-            ' bei ${decideSimple(VLEHRER, '[Lehrer]')} in Raum ${decide(VRAUM, RAUM, '[Raum]')}';
+            ' in Raum ${decide(VRAUM, RAUM, '[Raum]')}';
 
-      if (INFO.contains('verschoben'))
+      if (INFO.toLowerCase().contains('verschoben'))
         output = '$FACH wird $INFO';
       else if (INFO.contains('anstatt'))
         output += ' $INFO';
-      else if (INFO.contains('Aufg. erteilt'))
+      else if (INFO.toLowerCase().contains('aufg. erteilt'))
         output += '\nAufgaben erteilt';
-      else if (INFO.contains('Aufg. für zu Hause erteilt'))
+      else if (INFO.toLowerCase().contains('aufg. für zu hause erteilt'))
         output += '\nAufgaben für Zuhause erteilt';
-      else if (INFO.contains('Aufg. für Stillarbeit erteilt'))
+      else if (INFO.toLowerCase().contains('aufg. für stillarbeit erteilt'))
         output += '\nAufgaben für Stillarbeit erteilt';
       else if (INFO != '') output += '\n$INFO';
 

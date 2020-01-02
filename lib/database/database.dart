@@ -8,10 +8,9 @@ class ScheduleDatabase {
   static const COL_2 = 'std';
   static const COL_3 = 'fach';
   static const COL_4 = 'raum';
-  static const COL_5 = 'vlehrer';
-  static const COL_6 = 'vfach';
-  static const COL_7 = 'vraum';
-  static const COL_8 = 'info';
+  static const COL_5 = 'vfach';
+  static const COL_6 = 'vraum';
+  static const COL_7 = 'info';
 
   String path = '';
   Database database;
@@ -31,8 +30,7 @@ class ScheduleDatabase {
         '$COL_4 TEXT, '
         '$COL_5 TEXT, '
         '$COL_6 TEXT, '
-        '$COL_7 TEXT, '
-        '$COL_8 TEXT)');
+        '$COL_7 TEXT)');
   }
 
   deleteTable(int table) async {
@@ -43,7 +41,7 @@ class ScheduleDatabase {
     }
   }
 
-  insertData(int table, String kl, String std, String fach, String raum, String vlehrer, String vfach, String vraum, String info) async {
+  insertData(int table, String kl, String std, String fach, String raum, String vfach, String vraum, String info) async {
     // make sure we don't write in a non-existing database
     await _createTable(database, table);
     // insert data
@@ -52,10 +50,9 @@ class ScheduleDatabase {
       COL_2: std,
       COL_3: fach,
       COL_4: raum,
-      COL_5: vlehrer,
-      COL_6: vfach,
-      COL_7: vraum,
-      COL_8: info
+      COL_5: vfach,
+      COL_6: vraum,
+      COL_7: info
     });
   }
 }
